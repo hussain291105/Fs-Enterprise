@@ -1,116 +1,94 @@
-import React from "react";
-import { useNavigate, useLocation } from "react-router-dom";
-import { LayoutGrid, FileText, LogOut, BarChart3, BarChart4, ReceiptText, ReceiptIndianRupee, Receipt, Notebook } from "lucide-react"; 
-import EzzyLogo from "@/assets/logo.png";
+'use client';
+
+import { useRouter, usePathname } from 'next/navigation';
+import {
+  LayoutGrid,
+  FileText,
+  LogOut,
+  BarChart4,
+  Notebook
+} from 'lucide-react';
 
 interface SidebarProps {
   collapsed?: boolean;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ collapsed = false }) => {
-  const navigate = useNavigate();
-  const location = useLocation();
+export default function Sidebar({ collapsed = false }: SidebarProps) {
+  const router = useRouter();
+  const pathname = usePathname() || '';
 
   const handleLogout = () => {
-    sessionStorage.removeItem("auth");
-    navigate("/login");
+    sessionStorage.removeItem('auth');
+    router.push('/login');
   };
 
   const isActive = (path: string) => {
-  return location.pathname === path || location.pathname.startsWith(path + "/");
-};
+    return pathname === path || pathname.startsWith(path + '/');
+  };
 
   return (
     <aside
-      className={`flex flex-col h-full bg-white border-r transition-all duration-300 ${
-        collapsed ? "w-20" : "w-64"
+      className={`flex flex-col min-h-screen bg-white border-r transition-all duration-300 ${
+        collapsed ? 'w-20' : 'w-64'
       }`}
     >
 
-      {/* Navigation Section */}
-      <nav className="flex-1 space-y-2 px-3 mt-4">
-        
+      {/* Navigation */}
+      <nav className="space-y-2 px-3 mt-4">
+
         {/* Dashboard */}
         <button
-          onClick={() => navigate("/")}
-          className={`flex items-center gap-3 w-full p-3 rounded-lg transition-all duration-200 ${
-            isActive("/")
-              ? "bg-blue-600 text-white font-semibold shadow-sm"
-              : "text-blue-600 hover:bg-blue-100"
+          onClick={() => router.push('/dashboard')}
+          className={`flex items-center gap-3 w-full p-3 rounded-lg ${
+            isActive('/dashboard')
+              ? 'bg-blue-600 text-white font-semibold'
+              : 'text-blue-600 hover:bg-blue-100'
           }`}
         >
-          <LayoutGrid
-            size={18}
-            className={`${isActive("/") ? "text-white" : "text-blue-600"}`}
-          />
-          {!collapsed && "Dashboard"}
+          <LayoutGrid size={18} />
+          {!collapsed && 'Dashboard'}
         </button>
 
         {/* Billing */}
         <button
-          onClick={() => {
-            navigate("/billing");
-            window.dispatchEvent(new Event("billing-navigation"));
-          }}
-          className={`flex items-center gap-3 w-full p-3 rounded-lg transition-all duration-200 ${
-            isActive("/billing")
-              ? "bg-blue-600 text-white font-semibold shadow-sm"
-              : "text-blue-600 hover:bg-blue-100"
+          onClick={() => router.push('/billing')}
+          className={`flex items-center gap-3 w-full p-3 rounded-lg ${
+            isActive('/billing')
+              ? 'bg-blue-600 text-white font-semibold'
+              : 'text-blue-600 hover:bg-blue-100'
           }`}
         >
-          <FileText
-            size={18}
-            className={`${isActive("/billing") ? "text-white" : "text-blue-600"}`}
-          />
-          {!collapsed && "Billing"}
+          <FileText size={18} />
+          {!collapsed && 'Billing'}
         </button>
 
-        {/* Expense Report */}
+        {/* Expense */}
         <button
-          onClick={() => navigate("/expense-report")}
-          className={`flex items-center gap-3 w-full p-3 rounded-lg transition-all duration-200 ${
-            isActive("/expense-report")
-              ? "bg-blue-600 text-white font-semibold shadow-sm"
-              : "text-blue-600 hover:bg-blue-100"
+          onClick={() => router.push('/expenses')}
+          className={`flex items-center gap-3 w-full p-3 rounded-lg ${
+            isActive('/expenses')
+              ? 'bg-blue-600 text-white font-semibold'
+              : 'text-blue-600 hover:bg-blue-100'
           }`}
         >
-          <BarChart4
-            size={18}
-            className={`${isActive("/expense-report") ? "text-white" : "text-blue-600"}`}
-          />
-          {!collapsed && "Expense Report"}
+          <BarChart4 size={18} />
+          {!collapsed && 'Expense Report'}
         </button>
 
-        {/* Profit Report */}
+        {/* Profit */}
         <button
-          onClick={() => navigate("/profit")}
-          className={`flex items-center gap-3 w-full p-3 rounded-lg transition-all duration-200 ${
-            isActive("/profit")
-              ? "bg-blue-600 text-white font-semibold shadow-sm"
-              : "text-blue-600 hover:bg-blue-100"
+          onClick={() => router.push('/reports')}
+          className={`flex items-center gap-3 w-full p-3 rounded-lg ${
+            isActive('/reports')
+              ? 'bg-blue-600 text-white font-semibold'
+              : 'text-blue-600 hover:bg-blue-100'
           }`}
         >
-          <Notebook
-            size={18}
-            className={`${isActive("/profit") ? "text-white" : "text-blue-600"}`}
-          />
-          {!collapsed && "Profit Report"}
+          <Notebook size={18} />
+          {!collapsed && 'Profit Report'}
         </button>
 
       </nav>
-
-      {/* Logout */}
-      <div className="p-4 border-t">
-        <button
-          onClick={handleLogout}
-          className="flex items-center gap-3 w-full p-3 rounded-lg text-gray-700 hover:bg-red-100 hover:text-red-600 transition"
-        >
-          <LogOut size={18} />
-          {!collapsed && "Logout"}
-        </button>
-      </div>
     </aside>
   );
-};
-
-export default Sidebar;
+}

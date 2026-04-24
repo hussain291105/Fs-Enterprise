@@ -1,9 +1,11 @@
 export interface PrintBillData {
   billNumber?: string;
   customerName: string;
-  phoneNumber?:string
+  phoneNumber?: string;
   billDate?: string;
   paymentMode?: string;
+  status?: string;
+  gst?: boolean;
   items: {
     gsm_number: number | string;
     description: string;
@@ -14,343 +16,276 @@ export interface PrintBillData {
   subtotal: number;
 }
 
-export function printBillInvoice(data: any) {
-  const { items, subtotal, gst } = data;
+export function printBillInvoice(data: PrintBillData) {
+  const subtotal = Number(data.subtotal || 0);
+  const gstEnabled = Boolean(data.gst);
+  const taxAmount = gstEnabled ? subtotal * 0.18 : 0;
+  const grandTotal = subtotal + taxAmount;
 
-  const taxAmount = gst ? subtotal * 0.18 : 0;
-  const total = subtotal + taxAmount;
-  
+  const formatCurrency = (value: number) => `₹${value.toFixed(2)}`;
+  const formattedDate = data.billDate
+    ? new Date(data.billDate).toLocaleDateString("en-GB").replace(/\//g, "-")
+    : "-";
+
   const win = window.open("", "_blank");
   if (!win) return;
 
-  //======== WATERMARK & PAID STAMP LOGIC ========
   let showWatermark = false;
   let showPaidStamp = false;
-
   const cleanStatus = (data.status || "").toLowerCase();
 
   if (cleanStatus === "paid") {
     showPaidStamp = true;
-    showWatermark = false;
   } else if (
     cleanStatus === "unpaid" ||
     cleanStatus === "pending" ||
     cleanStatus === "new invoice"
   ) {
     showWatermark = true;
-    showPaidStamp = false;
   }
 
   const itemsRows = data.items
     .map(
-      (item: any) => `
+      (item) => `
         <tr>
-          <td style="padding: 10px 0; border-bottom: 1px solid #f2f2f2;">${item.description}</td>
-          <td style="padding: 10px 0; text-align:center; border-bottom: 1px solid #f2f2f2;">${item.quantity}</td>
-          <td style="padding: 10px 0; text-align:right; border-bottom: 1px solid #f2f2f2;">₹${item.price}</td>
-          <td style="padding: 10px 0; text-align:right; border-bottom: 1px solid #f2f2f2;">₹${item.total}</td>
+          <td>${item.description || "-"}</td>
+          <td class="qty">${item.quantity ?? 0}</td>
+          <td class="amount">${formatCurrency(Number(item.price || 0))}</td>
+          <td class="amount">${formatCurrency(Number(item.total || 0))}</td>
         </tr>
       `
     )
     .join("");
 
   win.document.write(`
-    <html>
-      <head>
-        <title>Invoice</title>
-
-        <style>
-          body {
-            font-family: 'Arial', sans-serif;
-            background: #ffffff;
-            margin: 0;
-            padding: 0;
-          }
-
-          .invoice-container {
-            width: 780px;
-            margin: 40px auto;
-            padding: 40px 50px;
-            background: white;
-            box-shadow: 0 0 5px rgba(0,0,0,0.1);
-            text-align: center;
-
-            /* Footer fix */
-            min-height: 1000px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-          }
-
-          .header-title {
-            font-size: 46px;
-            font-weight: bold;
-            color: #0F4C3A;
-            margin-bottom: 6px;
-            text-align: center;
-          }
-
-          .invoice-number {
-            font-size: 14px;
-            color: #1D6B4F;
-            margin-top: -4px;
-          }
-
-          .flex {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-          }
-
-          .right-contact {
-            text-align: right;
-            font-size: 14px;
-            text-align: right;
-          }
-
-          .right-contact-title {
-            color: #0F4C3A;
-            font-weight: bold;
-            font-size: 16px; 
-          }
-
-          .left-contact {
-            text-align: left;
-            font-size: 14px;
-            text-align: left;
-          }
-
-          .left-contact-title {
-            color: #0F4C3A;
-            font-weight: bold;
-            font-size: 16px; 
-          }
-
-          table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 35px;
-          }
-
-          th {
-            color: #0F4C3A;
-            font-size: 16px;
-            padding-bottom: 8px;
-            border-bottom: 1px solid #eee;
-            text-align: left;
-            letter-spacing: 0.5px;
-          }
-
-          td {
-            font-size: 15px;
-            font: normal 15px/24px Arial, sans-serif;
-          }
-
-          .summary {
-            width: 260px;
-            margin-left: auto;
-            margin-top: 30px;
-          }
-
-          .summary td {
-            padding: 5px 0;
-          }
-
-          .summary .grand-total {
-            font-size: 25px;
-            font-weight: bold;
-            border-top: 2px solid #aaa;
-            padding-top: 8px;
-            color: #0F4C3A;
-          }
-
-          .date-issued {
-            margin-top: 30px;
-            font-size: 13px;
-          }
-
-          .bottom-line {
-            border-top: 4px solid #A8C6A0;
-            margin: 40px 0 30px 0;
-          }
-
-          .footer {
-            font-size: 13px;
-            line-height: 20px;
-          }
-
-          .footer-logo {
-            text-align: right;
-          }
-
-          .footer-logo-name {
-            color: #0F4C3A;
-            font-size: 30px;
-            font-weight: bold;
-            letter-spacing: 1px;
-          }
-
-          .paid-stamp {
-            text-align: center;
-            margin: 40px 0 20px 0;
-          }
-
-          .paid-stamp img {
-            width: 180px;
-            opacity: 0.85;
-          }
-        </style>
-
-      </head>
-
-      <body>
-        <div class="invoice-container">
-
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Invoice</title>
+    <style>
+      * { box-sizing: border-box; }
+      body {
+        font-family: Arial, sans-serif;
+        background: #fff;
+        margin: 0;
+        color: #0f2f27;
+      }
+      .invoice-container {
+        width: 820px;
+        margin: 24px auto;
+        padding: 34px 32px 28px;
+        background: #fff;
+        border-top: 1px solid #dedede;
+        border-bottom: 1px solid #dedede;
+        min-height: 1100px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        position: relative;
+      }
+      .top-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+      }
+      .title {
+        font-size: 48px;
+        font-weight: 800;
+        color: #0f4c3a;
+        line-height: 1;
+      }
+      .invoice-meta {
+        margin-top: 8px;
+        font-size: 16px;
+        color: #1d6b4f;
+      }
+      .contact {
+        text-align: right;
+        font-size: 28px;
+        line-height: 1.3;
+        font-weight: 700;
+        color: #0f4c3a;
+      }
+      .tax-block {
+        margin-top: 34px;
+        text-align: left;
+        font-size: 20px;
+        line-height: 1.4;
+      }
+      .tax-block .tax-title {
+        font-weight: 700;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 28px;
+      }
+      th {
+        color: #0f4c3a;
+        font-size: 24px;
+        padding: 8px 0;
+        border-bottom: 1px solid #d8d8d8;
+        text-align: left;
+      }
+      td {
+        font-size: 30px;
+        padding: 10px 0;
+        border-bottom: 1px solid #efefef;
+        color: #111;
+      }
+      .qty { text-align: center; width: 120px; }
+      .amount { text-align: right; width: 180px; }
+      .spacer {
+        flex: 1;
+        min-height: 260px;
+      }
+      .summary-wrap {
+        border-top: 3px solid #a8c6a0;
+        padding-top: 18px;
+        margin-top: 20px;
+      }
+      .summary-table {
+        width: 300px;
+        margin-left: auto;
+        margin-top: 0;
+      }
+      .summary-table td {
+        border: none;
+        padding: 5px 0;
+        font-size: 20px;
+        color: #111;
+      }
+      .summary-table .final {
+        font-size: 44px;
+        font-weight: 800;
+        color: #0f4c3a;
+        padding-top: 6px;
+      }
+      .bottom-line {
+        border-top: 3px solid #a8c6a0;
+        margin: 16px 0 14px 0;
+      }
+      .footer {
+        font-size: 16px;
+        line-height: 1.45;
+        color: #111;
+      }
+      .watermark {
+        position: absolute;
+        top: 57%;
+        left: 52%;
+        transform: translate(-50%, -50%) rotate(-30deg);
+        opacity: 0.09;
+        font-size: 106px;
+        font-weight: 800;
+        color: #d40000;
+        pointer-events: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="invoice-container">
+      <div>
+        <div class="top-row">
           <div>
-            <div class="flex">
-              <div>
-                <div class="header-title">INVOICE</div>
-                <div class="invoice-number">INVOICE#: ${data.billNumber}</div>
-              </div>
-            </div>
-
-              <div class="right-contact">
-                <div class="right-contact-title">CUSTOMER CONTACT</div>
-                ${data.customerName}<br/>
-                ${new Date(data.billDate).toLocaleDateString("en-GB").replace(/\//g, "-")}<br/>
-                ${data.phoneNumber}
-              </div>
-
-              ${
-                gst
-                  ? `
-              <div class="left-contact">
-                <div class="left-contact-title">Tax Details</div>
-                Tax Invoice :-  27AAACH7409R1Z1<br/>
-              </div>`
-                  : ''
-              }
-            
-            <table>
-              <thead>
-                <tr>
-                  <th>Description</th>
-                  <th style="text-align:center;">QTY</th>
-                  <th style="text-align:right;">PRICE</th>
-                  <th style="text-align:right;">TOTAL</th>
-                </tr>
-              </thead>
-              <tbody>${itemsRows}</tbody>
-            </table>
+            <div class="title">INVOICE</div>
+            <div class="invoice-meta">INVOICE#: ${data.billNumber || "-"}</div>
           </div>
-            
-
-          <!-- FIXED BOTTOM FOOTER -->
-          <div style="margin-top:auto;">
-            <hr style="border: 1px solid #A8C6A0; margin: 20px 0;">
-            <table class="summary">
-              <tr>
-                <td>Subtotal:</td>
-                <td style="text-align:right;">₹${data.subtotal}</td>
-              </tr>
-              ${
-                gst
-                  ? `
-              <tr>
-                <td>Tax (18%):</td>
-                <td style="text-align:right;">₹${(data.subtotal * 0.18).toFixed(2)}</td>
-              </tr>`
-                  : ''
-              }
-              <tr>
-                <td class="grand-total">Total:</td>
-                <td class="grand-total" style="text-align:right;">₹${(data.subtotal * 1.18).toFixed(2)}</td>
-              </tr>
-            </table>
-
-            <div class="bottom-line"></div>
-
-            <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-              <div class="footer">
-                Fresh Soft Tissue Enterprises <br>
-                6-27-700 Park Ave <br>
-                Pune, Maharashtra <br>
-                411006 <br>
-                fsenterprises523@gmail.com <br>
-                www.fsenterprise.com
-              </div>
-
-              ${showWatermark ? `
-                <div style="
-                  position: fixed;
-                  top: 50%;
-                  left: 50%;
-                  transform: translate(-50%, -50%) rotate(-30deg);
-                  opacity: 0.08;
-                  font-size: 110px;
-                  font-weight: bold;
-                  color: #FF0000;
-                  pointer-events: none;
-                  z-index: 0;
-                ">
-                  Fs Enterprises
-                </div>
-              ` : ''}
-
-              ${showPaidStamp ? `
-              <div style="
-                width: 100%;
-                margin-top: 40px;
-                display: flex;
-                justify-content: right;
-                align-items: center;
-              ">
-                <div style="position: relative; width: 240px;">
-                  <img 
-                    src="/paid-stamp copy.png" 
-                    alt="Paid Stamp"
-                    style="width: 220px; position: relative; z-index: 1;"
-                  />
-
-                  <img
-                    src="/mustafa-sign.png" 
-                    alt="Signature"
-                    style="
-                      position: absolute;
-                      bottom: -10px;
-                      right: -60px;
-                      width: 180px;
-                      z-index: 2;
-                      transform: rotate(-8deg);
-                    "
-                  />
-
-                  <div style="
-                    color: #0F4C3A;
-                    font-size: 30px;
-                    font-weight: bold;
-                    text-align: center;
-                    margin-top: 10px;
-                  ">
-                    Fs Enterprise
-                  </div>
-                </div>
-              </div>
-              ` : ''}
-                </div>
-              </div>
-            </div>
+          <div class="contact">
+            CUSTOMER CONTACT<br>
+            Name : ${data.customerName || "-"}<br>
+            Date : ${formattedDate}<br>
+            Phone : ${data.phoneNumber || "-"}
           </div>
-
         </div>
 
-        <script>
-          window.print();
-          setTimeout(() => window.close(), 400);
-        </script>
+        ${
+          gstEnabled
+            ? `
+        <div class="tax-block">
+          <div class="tax-title">Tax Details</div>
+          Tax Invoice :- 27AAACH7409R1Z1
+        </div>
+          `
+            : ""
+        }
 
-      </body>
-    </html>
+        <table>
+          <thead>
+            <tr>
+              <th>Description</th>
+              <th class="qty">QTY</th>
+              <th class="amount">PRICE</th>
+              <th class="amount">TOTAL</th>
+            </tr>
+          </thead>
+          <tbody>${itemsRows}</tbody>
+        </table>
+      </div>
+
+      <div class="spacer"></div>
+
+      <div class="summary-wrap">
+        <table class="summary-table">
+          <tr>
+            <td>Subtotal:</td>
+            <td style="text-align:right;">${formatCurrency(subtotal)}</td>
+          </tr>
+          ${
+            gstEnabled
+              ? `
+          <tr>
+            <td>Tax (18%):</td>
+            <td style="text-align:right;">${formatCurrency(taxAmount)}</td>
+          </tr>
+            `
+              : ""
+          }
+          <tr>
+            <td class="final">Total:</td>
+            <td class="final" style="text-align:right;">${formatCurrency(grandTotal)}</td>
+          </tr>
+        </table>
+
+        <div class="bottom-line"></div>
+
+        <div style="display:flex; justify-content:space-between; align-items:flex-end;">
+          <div class="footer">
+            Fresh Soft Tissue Enterprises<br>
+            6-27-700 Park Ave<br>
+            Pune, Maharashtra<br>
+            411006<br>
+            fsenterprises523@gmail.com<br>
+            www.fsenterprise.com
+          </div>
+
+          ${
+            showPaidStamp
+              ? `
+          <div style="width:240px; text-align:right; position:relative;">
+            <div style="position: relative; width: 240px; margin-left: auto;">
+              <img src="/paid-stamp copy.png" alt="Paid Stamp" style="width: 120px; position: relative; z-index: 1;" />
+              <img src="/mustafa-sign.png" alt="Signature" style="position: absolute; bottom: 10px; right: 20px; width: 100px; z-index: 2; transform: rotate(-8deg);" />
+              <div style="color: #0f4c3a; font-size: 30px; font-weight: 800; text-align: center; margin-top: 10px;">
+                Fs Enterprise
+              </div>
+            </div>
+          </div>
+            `
+              : ""
+          }
+        </div>
+      </div>
+
+      ${showWatermark ? `<div class="watermark">Fs Enterprises</div>` : ""}
+    </div>
+
+    <script>
+      window.print();
+      setTimeout(() => window.close(), 400);
+    </script>
+  </body>
+</html>
   `);
 
   win.document.close();

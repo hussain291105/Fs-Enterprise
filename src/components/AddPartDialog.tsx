@@ -2,17 +2,18 @@ import React, { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+} from "./ui/dialog";
+import { Button } from "./ui/button";
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
 import { Plus } from "lucide-react";
 import { toast } from "sonner";
 
-import { createStock } from "@/api/stock";
+import { createStock } from "../api/stock";
 
 interface AddPartDialogProps {
   onPartAdded: () => void;
@@ -21,7 +22,7 @@ interface AddPartDialogProps {
 const AddPartDialog = ({ onPartAdded }: AddPartDialogProps) => {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-
+  
   const [formData, setFormData] = useState({
     gsm_number: "",
     category: "",
@@ -97,13 +98,16 @@ const AddPartDialog = ({ onPartAdded }: AddPartDialogProps) => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button>
+        <Button className="h-10 px-4 bg-blue-600 hover:bg-blue-700 text-white">
           <Plus className="mr-2 h-4 w-4" /> Add New Stock
         </Button>
       </DialogTrigger>
 
       <DialogContent className="max-w-2xl">
         <DialogHeader>
+          <DialogDescription>
+            Fill in the details below to add a new stock item to inventory.
+          </DialogDescription>
           <DialogTitle>Add Stock Item</DialogTitle>
         </DialogHeader>
 

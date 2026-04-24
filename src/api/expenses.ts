@@ -7,7 +7,7 @@ export interface Expense {
   amount: number;
 }
 
-const API_URL = "http://localhost:5000/api/expenses";
+const API_URL = "/api/expenses";
 
 // ✅ GET all expenses
 export const fetchExpenses = async (): Promise<Expense[]> => {

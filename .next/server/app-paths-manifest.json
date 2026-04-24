@@ -1,0 +1,17 @@
+{
+  "/api/expenses/[id]/route": "app/api/expenses/[id]/route.js",
+  "/api/billing/route": "app/api/billing/route.js",
+  "/api/billing/[id]/route": "app/api/billing/[id]/route.js",
+  "/api/billing/[id]/items/route": "app/api/billing/[id]/items/route.js",
+  "/api/stock/route": "app/api/stock/route.js",
+  "/api/profit-ledger/route": "app/api/profit-ledger/route.js",
+  "/api/expenses/route": "app/api/expenses/route.js",
+  "/api/billing/phone/[name]/route": "app/api/billing/phone/[name]/route.js",
+  "/(dashboard)/dashboard/page": "app/(dashboard)/dashboard/page.js",
+  "/(dashboard)/billing/page": "app/(dashboard)/billing/page.js",
+  "/(dashboard)/billing/new/page": "app/(dashboard)/billing/new/page.js",
+  "/(dashboard)/billing/edit/[id]/page": "app/(dashboard)/billing/edit/[id]/page.js",
+  "/(dashboard)/expenses/page": "app/(dashboard)/expenses/page.js",
+  "/(dashboard)/billing/view/[id]/page": "app/(dashboard)/billing/view/[id]/page.js",
+  "/(dashboard)/reports/page": "app/(dashboard)/reports/page.js"
+}

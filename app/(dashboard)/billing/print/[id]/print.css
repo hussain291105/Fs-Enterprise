@@ -1,0 +1,134 @@
+@page {
+  size: A4;
+  margin: 10mm;
+}
+
+.invoice-page {
+  width: 210mm;
+  min-height: 297mm;
+  margin: auto;
+  padding: 15mm;
+  background: #fff;
+  font-family: Arial, sans-serif;
+  color: #0f3d2e;
+  box-sizing: border-box;
+  position: relative;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.customer {
+  text-align: right;
+  font-size: 13px;
+}
+
+h1 {
+  font-size: 32px;
+  color: #0f3d2e;
+  margin: 0 0 10px 0;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 30px;
+  border: 2px solid #0f3d2e;
+}
+
+th, td {
+  border: 1px solid #0f3d2e;
+  padding: 10px;
+  text-align: left;
+}
+
+.watermark {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-30deg);
+  font-size: 80px;
+  color: rgba(0, 0, 0, 0.2);
+}
+
+.totals {
+  margin-top: 40px;
+  text-align: right;
+}
+
+.totals h2 {
+  font-size: 26px;
+  font-weight: bold;
+}
+
+.totals p {
+  margin: 5px 0;
+  font-size: 14px;
+}
+
+.footer {
+  position: absolute;
+  left: 0;
+  width: 100%;
+
+  border-top: 2px solid #0f3d2e;
+  padding-top: 10px;
+
+  font-size: 12px;
+  text-align: center;
+}
+
+.tax {
+  margin-top: 20px;
+  padding: 10px;
+  background: #f5f5f5;
+}
+
+.tax h4 {
+  margin: 0 0 5px 0;
+  font-size: 14px;
+}
+
+.tax p {
+  margin: 0;
+  font-size: 12px;
+}
+
+.print-btn {
+  margin-top: 20px;
+}
+
+@media print {
+  html, body {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: white !important;
+  }
+
+  /* Hide EVERYTHING */
+  * {
+    visibility: hidden !important;
+  }
+
+  /* Show ONLY invoice and its children */
+  .invoice-page,
+  .invoice-page * {
+    visibility: visible !important;
+  }
+
+  .invoice-page {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100% !important;
+    max-width: 210mm;
+    padding: 10mm;
+    background: white !important;
+    box-shadow: none;
+  }
+}

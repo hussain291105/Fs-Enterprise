@@ -1,24 +1,8 @@
-// src/components/Navbar.tsx
-import { LogOut } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 import React from "react";
 
-interface NavbarProps {
-  toggleSidebar?: () => void;
-}
-
-const Navbar: React.FC<NavbarProps> = () => {
-  const navigate = useNavigate();
-
-  const handleLogout = () => {
-    sessionStorage.removeItem("auth");
-    navigate("/login");
-  };
-
+const Navbar: React.FC = () => {
   return (
-    <header className="w-full bg-white border-b shadow-sm px-6 py-3 flex justify-end items-center">
-      
-    </header>
+    <header className="w-full h-12 bg-[#f3f4f6] border-b border-gray-200" />
   );
 };
 

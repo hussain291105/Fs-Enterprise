@@ -1,10 +1,10 @@
-const API_URL = "http://localhost:5000/api/stock";
+const API_URL = "/api/stock";
 
 /* --------------------------------------------------
    GET ALL STOCK
 -------------------------------------------------- */
 export const getStock = async () => {
-  const response = await fetch("http://localhost:5000/api/stock");
+  const response = await fetch("/api/stock");
 
   if (!response.ok) {
     throw new Error("Failed to fetch stock");
@@ -24,6 +24,12 @@ export async function createStock(data: any) {
     },
     body: JSON.stringify(data),
   });
+
+  if (!res.ok) {
+    const errorText = await res.text();
+    throw new Error(`Failed to create stock: ${res.status} ${errorText}`);
+  }
+
   return res.json();
 }
 
@@ -31,7 +37,7 @@ export async function createStock(data: any) {
    UPDATE STOCK ITEM
 -------------------------------------------------- */
 export async function updateStock(id: number, data: any) {
-  const res = await fetch(`http://localhost:5000/api/stock/${id}`, {
+  const res = await fetch(`/api/stock/${id}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",

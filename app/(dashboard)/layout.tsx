@@ -1,20 +1,27 @@
 'use client';
 
 import SidebarLayout from '@/components/SidebarLayout';
-import { ReactNode, useEffect } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 export default function Layout({ children }: { children: ReactNode }) {
   const router = useRouter();
+  const [mounted, setMounted] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
-    const isAuthenticated = sessionStorage.getItem('isAuthenticated');
-    if (isAuthenticated !== 'true') {
+    setMounted(true);
+    const auth = sessionStorage.getItem('isAuthenticated') === 'true';
+    setIsAuthenticated(auth);
+    
+    if (!auth) {
       router.push('/login');
     }
   }, [router]);
 
-  const isAuthenticated = typeof window !== 'undefined' ? sessionStorage.getItem('isAuthenticated') === 'true' : false;
+  if (!mounted) {
+    return null;
+  }
 
   if (!isAuthenticated) {
     return null;

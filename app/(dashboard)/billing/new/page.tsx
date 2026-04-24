@@ -316,7 +316,7 @@ export default function BillingForm() {
   const [customerName, setCustomerName] = useState("");
   const [showGSTPopup, setShowGSTPopup] = useState(false);
   // ⭐ NEW: CUSTOMER NAME HISTORY
-  const [customerNames, setCustomerNames] = useState<string[]>([]);
+  const [customerNames, setCustomerNames] = useState<any[]>([]);
   const [showCountryList, setShowCountryList] = useState(false);
   const [countryHighlight, setCountryHighlight] = useState(-1);
   const [billDate, setBillDate] = useState(new Date().toISOString().slice(0, 10));
@@ -342,10 +342,19 @@ export default function BillingForm() {
     }
   }
 
-  // ⭐ NEW: LOAD SAVED CUSTOMER NAMES
+  // ⭐ NEW: LOAD CUSTOMERS FROM API
   useEffect(() => {
-    const list = JSON.parse(localStorage.getItem("customerNames") || "[]");
-    setCustomerNames(list);
+    async function loadCustomers() {
+      try {
+        const res = await fetch('/api/customers');
+        const data = await res.json();
+        console.log('Loaded customers on mount:', data);
+        setCustomerNames(data);
+      } catch (error) {
+        console.error('Failed to load customers:', error);
+      }
+    }
+    loadCustomers();
   }, []);
 
   // ⭐ NEW: CLOSE DROPDOWN WHEN CLICKING OUTSIDE
@@ -371,35 +380,40 @@ export default function BillingForm() {
 
   // ⭐ AUTO-FILL PHONE NUMBER WHEN CUSTOMER NAME IS SELECTED
   useEffect(() => {
-    if (!customerName) return;
-
-    async function fetchPhone() {
-      try {
-        const res = await fetch(`/api/billing/phone/${customerName}`);
-        const data = await res.json();
-
-        if (data.phone_number) {
-          setPhoneNumber(data.phone_number); // Auto-fill
-        } else {
-          setPhoneNumber(""); // No saved phone → clear field
-        }
-      } catch (err) {
-        console.error("Phone fetch error", err);
-      }
+    if (!customerName) {
+      setPhoneNumber("");
+      return;
     }
-    
-    fetchPhone();
-  }, [customerName]);
 
-  // ⭐ NEW: FUNCTION TO SAVE CUSTOMER TO LOCAL STORAGE
-  function saveCustomerName(name: string) {
-    if (!name) return;
+    // Check if customer exists in our list
+    const customer = customerNames.find(c => c.name.toLowerCase() === customerName.toLowerCase());
+    if (customer) {
+      setPhoneNumber(customer.phone_number);
+    } else {
+      setPhoneNumber("");
+    }
+  }, [customerName, customerNames]);
 
-    let list = JSON.parse(localStorage.getItem("customerNames") || "[]");
+  // ⭐ NEW: FUNCTION TO SAVE CUSTOMER TO API
+  async function saveCustomer(name: string, phone: string) {
+    if (!name || !phone) return;
 
-    if (!list.some((n: string) => n.toLowerCase() === name.toLowerCase())) {
-      list.push(name);
-      localStorage.setItem("customerNames", JSON.stringify(list));
+    try {
+      console.log('Saving customer:', { name, phone });
+      const res = await fetch('/api/customers', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, phone_number: phone }),
+      });
+      console.log('Save customer response:', res.status);
+
+      // Reload customers list
+      const res2 = await fetch('/api/customers');
+      const data = await res2.json();
+      console.log('Loaded customers:', data);
+      setCustomerNames(data);
+    } catch (error) {
+      console.error('Failed to save customer:', error);
     }
   }
 
@@ -506,8 +520,8 @@ export default function BillingForm() {
         data.bill_number || `INV-${String(data.id).padStart(4, "0")}`;
       setSavedBillNumber(billNumber);
 
-      // ⭐ NEW: SAVE CUSTOMER NAME
-      saveCustomerName(customerName);
+      // ⭐ NEW: SAVE CUSTOMER DETAILS
+      saveCustomer(customerName, `${countryCode} ${phoneNumber}`);
 
       toast.success(`Bill saved successfully (${billNumber})`);
       router.push("/billing")
@@ -567,7 +581,7 @@ export default function BillingForm() {
         const billId = String(data.id);
         const billNumber = data.bill_number || `INV-${String(data.id).padStart(4, "0")}`;
         setSavedBillNumber(billNumber);
-        saveCustomerName(customerName);
+        saveCustomer(customerName, `${countryCode} ${phoneNumber}`);
         toast.success(`Bill saved successfully (${billNumber})`);
 
         const query = withGST ? "gst=true" : "gst=false";
@@ -627,8 +641,8 @@ export default function BillingForm() {
               return;
             }
 
-            const filtered = customerNames.filter((n) =>
-              n.toLowerCase().includes(customerName.toLowerCase())
+            const filtered = customerNames.filter((c) =>
+              c.name.toLowerCase().includes(customerName.toLowerCase())
             );
 
             if (e.key === "ArrowDown") {
@@ -646,7 +660,8 @@ export default function BillingForm() {
             if (e.key === "Enter") {
               e.preventDefault();
               if (highlightIndex >= 0 && highlightIndex < filtered.length) {
-                setCustomerName(filtered[highlightIndex]);
+                setCustomerName(filtered[highlightIndex].name);
+                setPhoneNumber(filtered[highlightIndex].phone_number);
                 setShowSuggestions(false);
               }
             }
@@ -662,19 +677,16 @@ export default function BillingForm() {
         {showSuggestions && customerName.length > 0 && (
           <div className="absolute z-20 w-full bg-white border rounded-md shadow-lg max-h-40 overflow-y-auto">
             {customerNames
-              .filter((n) =>
-                n.toLowerCase().includes(customerName.toLowerCase())
+              .filter((c) =>
+                c.name.toLowerCase().includes(customerName.toLowerCase())
               )
-              .map((name, index) => (
+              .map((customer, index) => (
                 <div
                   key={index}
-                  onClick={async () => {
-                    setCustomerName(name);
+                  onClick={() => {
+                    setCustomerName(customer.name);
+                    setPhoneNumber(customer.phone_number);
                     setShowSuggestions(false);
-
-                    const res = await fetch(`/api/billing/phone/${name}`);
-                    const data = await res.json();
-                    setPhoneNumber(data.phone_number || "");
                   }}
                   className={
                     "px-3 py-2 cursor-pointer " +
@@ -683,16 +695,17 @@ export default function BillingForm() {
                       : "hover:bg-gray-100")
                   }
                 >
-                  {name}
+                  <div className="font-medium">{customer.name}</div>
+                  <div className="text-sm text-gray-500">{customer.phone_number}</div>
                 </div>
               ))}
 
               {/* If no match, show option */}
-            {customerNames.filter((n) =>
-              n.toLowerCase().includes(customerName.toLowerCase())
-              ).length === 0 && (
+            {customerNames.filter((c) =>
+              c.name.toLowerCase().includes(customerName.toLowerCase())
+            ).length === 0 && (
               <div className="px-3 py-2 text-gray-400">No suggestions</div>
-              )}
+            )}
           </div>
         )}
       </div>

@@ -27,8 +27,8 @@ export default function LoginPage() {
     try {
       // Validate credentials
       if (userId === 'Admin' && password === 'fs@123') {
-        localStorage.setItem('isAuthenticated', 'true');
-        localStorage.setItem('userId', userId);
+        sessionStorage.setItem('isAuthenticated', 'true');
+        sessionStorage.setItem('userId', userId);
         toast.success('Login successful');
         router.push('/dashboard');
       } else {

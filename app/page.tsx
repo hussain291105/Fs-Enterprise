@@ -8,7 +8,7 @@ export default function Home() {
 
   useEffect(() => {
     // Check if user is authenticated
-    const isAuthenticated = localStorage.getItem('isAuthenticated');
+    const isAuthenticated = sessionStorage.getItem('isAuthenticated');
     if (isAuthenticated === 'true') {
       router.push('/dashboard');
     } else {

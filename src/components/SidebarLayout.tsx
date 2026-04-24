@@ -21,8 +21,8 @@ export default function SidebarLayout({ children }: { children: React.ReactNode 
   const router = useRouter();
 
   const handleLogout = () => {
-    localStorage.removeItem('isAuthenticated');
-    localStorage.removeItem('userId');
+    sessionStorage.removeItem('isAuthenticated');
+    sessionStorage.removeItem('userId');
     router.push('/login');
   };
 

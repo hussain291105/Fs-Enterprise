@@ -8,13 +8,13 @@ export default function Layout({ children }: { children: ReactNode }) {
   const router = useRouter();
 
   useEffect(() => {
-    const isAuthenticated = localStorage.getItem('isAuthenticated');
+    const isAuthenticated = sessionStorage.getItem('isAuthenticated');
     if (isAuthenticated !== 'true') {
       router.push('/login');
     }
   }, [router]);
 
-  const isAuthenticated = typeof window !== 'undefined' ? localStorage.getItem('isAuthenticated') === 'true' : false;
+  const isAuthenticated = typeof window !== 'undefined' ? sessionStorage.getItem('isAuthenticated') === 'true' : false;
 
   if (!isAuthenticated) {
     return null;

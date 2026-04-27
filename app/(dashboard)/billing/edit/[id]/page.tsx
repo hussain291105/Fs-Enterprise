@@ -73,11 +73,18 @@ const BillingEdit = () => {
       } else {
         setBillDate("");
       }
-      setPhoneNumber(
-        bill.phone_number
-          ? "+91 " + bill.phone_number.replace(/\D/g, "").slice(-10)
-          : "+91 "
-      );
+
+      const rawPhone = String(bill.phone_number || "").trim();
+      const match = rawPhone.match(/^(\+[^\s]+)\s+(.*)$/);
+      if (match) {
+        setCountryCode(match[1]);
+        setPhoneNumber(match[2].replace(/\D/g, "").slice(-10));
+      } else {
+        // If stored without country code, keep default +91 and extract last 10 digits.
+        setCountryCode("+91");
+        setPhoneNumber(rawPhone.replace(/\D/g, "").slice(-10));
+      }
+
       setPaymentMode(bill.payment_mode || "");
       setStatus(bill.status || "");
     } catch (err) {
@@ -191,7 +198,7 @@ const BillingEdit = () => {
         body: JSON.stringify({
           items: billItems,
           customer_name: customerName,
-          phone_number: phoneNumber,
+          phone_number: `${countryCode} ${phoneNumber}`,
           bill_date: billDate,
           payment_mode: paymentMode,
           status,
@@ -241,17 +248,29 @@ const BillingEdit = () => {
         placeholder="Customer Name"
       />
 
-      {/* Phone Number Input */}
-      <Input
-        placeholder="Phone Number"
-        value={phoneNumber}
-        maxLength={10}
-        onChange={(e) => {
-          const v = e.target.value.replace(/\D/g, ""); // allow digits only
-          if (v.length <= 10) setPhoneNumber(v);
-        }}
-        className="max-w-full"
-      />
+      {/* Phone Number */}
+      <div className="flex gap-3 max-w-md">
+        <Input
+          placeholder="Country Code"
+          value={countryCode}
+          onChange={(e) => {
+            let v = e.target.value.trim();
+            if (v && !v.startsWith("+")) v = `+${v}`;
+            setCountryCode(v);
+          }}
+          className="w-32"
+        />
+        <Input
+          placeholder="Phone Number"
+          value={phoneNumber}
+          maxLength={10}
+          onChange={(e) => {
+            const v = e.target.value.replace(/\D/g, "");
+            if (v.length <= 10) setPhoneNumber(v);
+          }}
+          className="max-w-full"
+        />
+      </div>
 
       {/* Date */}
       <Input 

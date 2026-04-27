@@ -308,6 +308,7 @@ export default function BillingForm() {
   const [quantity, setQuantity] = useState(1);
   const [customPrice, setCustomPrice] = useState<number | "">("");
   const [countryCode, setCountryCode] = useState("+91");
+  const [isExistingCustomer, setIsExistingCustomer] = useState(false);
   const [billItems, setBillItems] = useState<BillItem[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [highlightIndex, setHighlightIndex] = useState(-1);
@@ -382,15 +383,31 @@ export default function BillingForm() {
   useEffect(() => {
     if (!customerName) {
       setPhoneNumber("");
+      setIsExistingCustomer(false);
       return;
     }
 
     // Check if customer exists in our list
     const customer = customerNames.find(c => c.name.toLowerCase() === customerName.toLowerCase());
     if (customer) {
-      setPhoneNumber(customer.phone_number);
+      setIsExistingCustomer(true);
+
+      const rawPhone = String(customer.phone_number || "").trim();
+
+      // Expecting format like: "+91 9876543210" (as saved by this page)
+      const match = rawPhone.match(/^(\+[^\s]+)\s+(.*)$/);
+      if (match) {
+        const fetchedCode = match[1];
+        const fetchedNumber = match[2].replace(/\D/g, "");
+        setCountryCode(fetchedCode);
+        setPhoneNumber(fetchedNumber);
+      } else {
+        // If backend stored just the digits, keep current country code.
+        setPhoneNumber(rawPhone.replace(/\D/g, ""));
+      }
     } else {
       setPhoneNumber("");
+      setIsExistingCustomer(false);
     }
   }, [customerName, customerNames]);
 
@@ -716,11 +733,14 @@ export default function BillingForm() {
           <input
             value={countryCode}
             readOnly
+            disabled={isExistingCustomer}
             onFocus={() => {
+              if (isExistingCustomer) return;
               setShowCountryList(true);
               setCountryHighlight(-1);
             }}
             onClick={() => {
+              if (isExistingCustomer) return;
               setShowCountryList(true);
               setCountryHighlight(-1);
             }}
@@ -728,12 +748,14 @@ export default function BillingForm() {
             onBlur={() => {
               setShowCountryList(false);
             }}
-            className="border p-2 rounded-xl w-full bg-white cursor-pointer"
+            className={`border p-2 rounded-xl w-full bg-white cursor-pointer ${isExistingCustomer ? "bg-gray-100 cursor-not-allowed" : ""}`}
             onKeyDown={(e) => {
               if (e.key === "Tab") {
                 setShowCountryList(false);
                 return;
               }
+
+              if (isExistingCustomer) return;
 
               if (!showCountryList) return;
         
@@ -768,7 +790,7 @@ export default function BillingForm() {
           />
         
           {/* DROPDOWN LIST */}
-          {showCountryList && (
+          {showCountryList && !isExistingCustomer && (
             <div className="absolute mt-1 w-96 bg-white border rounded-lg shadow-lg max-h-80 overflow-y-auto z-20">
               {countryCodes.map((c, idx) => (
                 <div

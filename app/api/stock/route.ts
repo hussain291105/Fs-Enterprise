@@ -10,9 +10,16 @@ export async function GET() {
     const stockItems = await collection.find({}).sort({ id: -1 }).toArray();
     
     return NextResponse.json(stockItems);
-  } catch (error) {
-    console.error('Fetch stock error:', error);
-    return NextResponse.json({ error: 'Failed to fetch stock items' }, { status: 500 });
+  } catch (error: any) {
+    console.error('Fetch stock error detailed:', {
+      message: error.message,
+      stack: error.stack,
+      name: error.name
+    });
+    return NextResponse.json({ 
+      error: 'Failed to fetch stock items',
+      details: error.message 
+    }, { status: 500 });
   }
 }
 
@@ -36,8 +43,15 @@ export async function POST(request: Request) {
     await collection.insertOne(newItem);
     
     return NextResponse.json(newItem, { status: 201 });
-  } catch (error) {
-    console.error('Create stock error:', error);
-    return NextResponse.json({ error: 'Failed to create stock item' }, { status: 500 });
+  } catch (error: any) {
+    console.error('Create stock error detailed:', {
+      message: error.message,
+      stack: error.stack,
+      name: error.name
+    });
+    return NextResponse.json({ 
+      error: 'Failed to create stock item',
+      details: error.message 
+    }, { status: 500 });
   }
 }

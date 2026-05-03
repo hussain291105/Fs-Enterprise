@@ -651,7 +651,7 @@ const ProfitDashboard: React.FC = () => {
                         cy="50%"
                         outerRadius={100}
                         innerRadius={50}
-                        label={({ percent }) => `${(percent * 100).toFixed(0)}%`}
+                        label={({ percent }) => `${((percent || 0) * 100).toFixed(0)}%`}
                       >
                         {pieData.map((entry, index) => (
                           <Cell key={index} fill={COLORS[index % COLORS.length]} />

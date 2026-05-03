@@ -4,10 +4,10 @@ import { ObjectId } from 'mongodb';
 
 export async function DELETE(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
     console.log('DELETE /api/expenses/[id] - Received:', { id });
 
     const client = await clientPromise;
@@ -26,10 +26,10 @@ export async function DELETE(
 
 export async function PUT(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
     const body = await req.json();
     console.log('PUT /api/expenses/[id] - Received:', { id, body });
 

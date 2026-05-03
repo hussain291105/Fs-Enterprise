@@ -3,14 +3,15 @@ import clientPromise from '@/lib/mongodb';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const client = await clientPromise;
     const db = client.db();
     const collection = db.collection('billing');
 
-    const bill = await collection.findOne({ id: Number(params.id) });
+    const bill = await collection.findOne({ id: Number(id) });
 
     if (!bill) {
       return NextResponse.json({ error: "Bill not found" }, { status: 404 });
@@ -25,10 +26,10 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
     const { customer_name, phone_number, bill_date, payment_mode, status, subtotal } = await request.json();
 
     const client = await clientPromise;
@@ -64,10 +65,10 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
 
     const client = await clientPromise;
     const db = client.db();

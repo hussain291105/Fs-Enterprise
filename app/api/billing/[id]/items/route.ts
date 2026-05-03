@@ -4,10 +4,10 @@ import clientPromise from '@/lib/mongodb';
 // GET bill items for a specific bill
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
     const client = await clientPromise;
     const db = client.db();
     const collection = db.collection('billing');
@@ -32,10 +32,10 @@ export async function GET(
 // PUT update bill items
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
     const body = await request.json();
     console.log('PUT /api/billing/[id]/items - Received:', { id, body });
 

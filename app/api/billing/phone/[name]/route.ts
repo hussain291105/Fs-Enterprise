@@ -4,10 +4,10 @@ import db from '@/lib/database';
 // GET phone number for customer
 export async function GET(
   request: Request,
-  { params }: { params: { name: string } }
+  { params }: { params: Promise<{ name: string }> }
 ) {
   try {
-    const { name } = params;
+    const { name } = await params;
 
     const connection = await db.getConnection();
     

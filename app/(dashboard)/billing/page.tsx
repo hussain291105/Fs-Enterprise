@@ -641,7 +641,7 @@ const BillingList = () => {
         <div className="flex items-center gap-4 w-full sm:w-auto">
           <Button
             onClick={() => router.push("/billing/new")}
-            className="bg-blue-600 hover:bg-blue-700 text-white text-base sm:text-lg px-4 sm:px-6 py-2 sm:py-3 rounded-lg shadow w-full sm:w-auto"
+            className="bg-blue-600 hover:bg-blue-700 text-white cursor-pointer text-base sm:text-lg px-4 sm:px-6 py-2 sm:py-3 rounded-lg shadow w-full sm:w-auto "
           >
             + Add New Bill
           </Button>
@@ -674,8 +674,15 @@ const BillingList = () => {
                 to: toDate ? new Date(toDate) : undefined,
               }}
               onChange={(range) => {
-                setFromDate(range?.from ? range.from.toISOString().split("T")[0] : "");
-                setToDate(range?.to ? range.to.toISOString().split("T")[0] : "");
+                const toLocalYmd = (d: Date) => {
+                  const yyyy = d.getFullYear();
+                  const mm = String(d.getMonth() + 1).padStart(2, "0");
+                  const dd = String(d.getDate()).padStart(2, "0");
+                  return `${yyyy}-${mm}-${dd}`;
+                };
+
+                setFromDate(range?.from ? toLocalYmd(range.from) : "");
+                setToDate(range?.to ? toLocalYmd(range.to) : "");
               }}
             />
           </div>
@@ -686,7 +693,7 @@ const BillingList = () => {
             <select
               value={filterPaymentMode}
               onChange={(e) => setFilterPaymentMode(e.target.value)}
-              className="border px-3 py-2 rounded-xl text-sm shadow-sm focus:ring-2 focus:ring-blue-300 outline-none"
+              className="border px-3 py-2 rounded-xl text-sm shadow-sm focus:ring-2 focus:ring-blue-300 outline-none cursor-pointer"
             >
               <option value="All">All</option>
               {paymentModeOptions.map((mode) => (
@@ -705,21 +712,21 @@ const BillingList = () => {
             <Button
               size="sm"
               onClick={exportCSV}
-              className="bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm"
+              className="bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm cursor-pointer"
             >
               Export CSV
             </Button>
             <Button
               size="sm"
               onClick={exportXLSX}
-              className="bg-green-600 hover:bg-green-700 text-white text-xs sm:text-sm"
+              className="bg-green-600 hover:bg-green-700 text-white text-xs sm:text-sm cursor-pointer"
             >
               Export XLSX
             </Button>
             <Button
               size="sm"
               onClick={exportPDF}
-              className="bg-red-600 hover:bg-red-700 text-white text-xs sm:text-sm"
+              className="bg-red-600 hover:bg-red-700 text-white text-xs sm:text-sm cursor-pointer"
             >
               Export PDF
             </Button>
@@ -729,7 +736,7 @@ const BillingList = () => {
             variant="outline"
             size="sm"
             onClick={clearFilters}
-            className="border-gray-300 text-xs sm:text-sm"
+            className="border-gray-300 text-xs sm:text-sm cursor-pointer"
           >
             Clear Filters
           </Button>
@@ -833,7 +840,7 @@ const BillingList = () => {
                       <Button
                         size="sm"
                         onClick={() => router.push(`/billing/view/${b.id}`)}
-                        className="bg-blue-500 text-white"
+                        className="bg-blue-500 text-white hover:bg-blue-600 cursor-pointer"
                       >
                         <Eye className="w-4 h-4 mr-1" /> View
                       </Button>
@@ -841,7 +848,7 @@ const BillingList = () => {
                       <Button
                         size="sm"
                         onClick={() => router.push(`/billing/edit/${b.id}`)}
-                        className="bg-yellow-500 text-white hover:bg-yellow-600"
+                        className="bg-yellow-500 text-white hover:bg-yellow-600 cursor-pointer"
                       >
                         <Pencil className="w-4 h-4 mr-1" /> Edit
                       </Button>
@@ -850,6 +857,7 @@ const BillingList = () => {
                         variant="destructive"
                         size="sm"
                         onClick={() => deleteBill(b.id)}
+                        className="bg-red-600 text-white hover:bg-red-700 cursor-pointer"
                       >
                         <Trash2 className="w-4 h-4 mr-1" /> Delete
                       </Button>

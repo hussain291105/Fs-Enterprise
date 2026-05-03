@@ -114,9 +114,12 @@ export default function EditPartDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-w-2xl bg-white">
         <DialogHeader>
           <DialogTitle>Edit Stock Item</DialogTitle>
+          <DialogDescription>
+            Update the details for this stock item. Click save when you're done.
+          </DialogDescription>
         </DialogHeader>
 
         {/* Form */}
@@ -260,11 +263,11 @@ export default function EditPartDialog({
 
           {/* Buttons */}
           <div className="flex justify-end gap-3 pt-4">
-            <Button variant="outline" onClick={() => onOpenChange(false)}>
+            <Button variant="outline" onClick={() => onOpenChange(false)} className="hover:bg-red-50 hover:text-red-600 hover:border-red-200">
               Cancel
             </Button>
 
-            <Button onClick={handleSave} disabled={loading}>
+            <Button onClick={handleSave} disabled={loading} className="bg-green-600 text-white hover:bg-green-700">
               {loading ? "Saving..." : "Save Changes"}
             </Button>
           </div>

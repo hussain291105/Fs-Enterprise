@@ -76,7 +76,7 @@ export default function PrintInvoice() {
   const total = subtotal + tax;
 
   return (
-    <div className="invoice-page">
+    <div className="invoice-page ">
 
       {/* HEADER */}
       <div className="header" style={{

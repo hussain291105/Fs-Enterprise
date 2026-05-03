@@ -869,7 +869,7 @@ export default function BillingForm() {
 
         <Input type="number" min={1} className="w-24" value={quantity} onChange={e => setQuantity(Number(e.target.value))} />
         <Input type="number" className="w-32" value={customPrice} onChange={e => setCustomPrice(e.target.value ? Number(e.target.value) : "")} placeholder="Price" />
-        <Button onClick={addItem}><Plus className="w-4 h-4 mr-1" /> Add Item</Button>
+        <Button className="bg-blue-600 text-white hover:bg-blue-700 cursor-pointer" onClick={addItem}><Plus className="w-4 h-4 mr-1" /> Add Item</Button>
       </div>
 
       <div className="border rounded-lg p-4 bg-white shadow-sm">
@@ -901,11 +901,11 @@ export default function BillingForm() {
         <div className="flex gap-3">
           <Button
             onClick={() => setShowGSTPopup(true)}
-            className="bg-blue-600 hover:bg-blue-700"
+            className="bg-blue-600 text-white hover:bg-blue-700"
           >
             <PrinterIcon className="w-4 h-4 mr-1" /> Print Bill
           </Button>
-          <Button onClick={saveBill} className="bg-green-600 hover:bg-green-700" disabled={saving}><Save className="w-4 h-4 mr-1" /> {saving ? "Saving..." : "Save Bill"}</Button>
+          <Button onClick={saveBill} className="bg-green-600 text-white hover:bg-green-700" disabled={saving}><Save className="w-4 h-4 mr-1" /> {saving ? "Saving..." : "Save Bill"}</Button>
         </div>
       </div>
 

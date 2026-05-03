@@ -85,8 +85,8 @@ export default function BillingView() {
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">Invoice {bill ? (bill.bill_number ?? `INV-${String(bill.id).padStart(4,"0")}`) : ""}</h1>
         <div className="flex gap-2">
-          <Button onClick={() => router.push(`/billing/edit/${id}`)} className="bg-yellow-500 text-white hover:bg-yellow-600">Edit</Button>
-          <Button variant="destructive" onClick={() => router.push("/billing")}>
+          <Button onClick={() => router.push(`/billing/edit/${id}`)} className="bg-yellow-500 text-white hover:bg-yellow-600 cursor-pointer">Edit</Button>
+          <Button variant="destructive" onClick={() => router.push("/billing")} className="cursor-pointer text-black hover:text-red-700">
             Back
           </Button>
         </div>
@@ -112,8 +112,8 @@ export default function BillingView() {
             </tr>
           </thead>
           <tbody>
-            {items.map(it => (
-              <tr key={it.id} className="border-b">
+            {items.map((it, idx) => (
+              <tr key={it.id ?? `${it.gsm_number}-${it.description}-${idx}`} className="border-b">
                 <td className="p-2">{it.gsm_number}</td>
                 <td className="p-2">{it.description}</td>
                 <td className="p-2 text-right">{it.quantity}</td>
@@ -134,7 +134,7 @@ export default function BillingView() {
           <div className="flex gap-3">
             <Button
               onClick={() => setShowGSTPopup(true)}
-              className="bg-blue-600"
+              className="bg-blue-600 text-white hover:bg-blue-700 cursor-pointer"
             >
               <PrinterIcon className="w-4 h-4 mr-1" /> Print Bill
             </Button>
@@ -143,7 +143,7 @@ export default function BillingView() {
 
         {/* GST Confirmation Popup */}
       <Dialog open={showGSTPopup} onOpenChange={setShowGSTPopup}>
-        <DialogContent className="max-w-md p-6 rounded-xl shadow-lg">
+        <DialogContent className="max-w-md p-6 rounded-xl shadow-lg bg-white text-black">
           <DialogHeader>
             <DialogTitle className="text-center text-xl font-semibold">
               Select GST Option
@@ -155,7 +155,7 @@ export default function BillingView() {
 
           <div className="flex justify-between gap-4 mt-4">
             <Button
-              className="bg-green-600 hover:bg-green-700 text-white w-full py-3 rounded-lg text-md font-semibold"
+              className="bg-green-600 hover:bg-green-700 text-white cursor-pointer w-full py-3 rounded-lg text-md font-semibold"
               onClick={() => {
                 setShowGSTPopup(false);
                 handlePrint(true); // WITH GST
@@ -165,7 +165,7 @@ export default function BillingView() {
             </Button>
 
             <Button
-              className="bg-red-600 hover:bg-red-700 text-white w-full py-3 rounded-lg text-md font-semibold"
+              className="bg-red-600 hover:bg-red-700 text-white cursor-pointer w-full py-3 rounded-lg text-md font-semibold"
               onClick={() => {
                 setShowGSTPopup(false);
                 handlePrint(false); // WITHOUT GST
@@ -178,7 +178,7 @@ export default function BillingView() {
           <div className="mt-4">
             <Button
               variant="outline"
-              className="w-full py-3 rounded-lg text-md font-semibold bg-white hover:bg-gray-400"
+              className="w-full py-3 rounded-lg text-md font-semibold bg-white hover:bg-gray-400 cursor-pointer"
               onClick={() => setShowGSTPopup(false)}
             >
               Cancel

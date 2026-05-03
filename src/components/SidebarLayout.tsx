@@ -69,7 +69,7 @@ export default function SidebarLayout({ children }: { children: React.ReactNode 
         ${isMobile
           ? mobileMenuOpen
             ? 'fixed inset-y-0 left-0 w-64 transform translate-x-0'
-            : 'fixed inset-y-0 left-0 w-64 transform -translate-x-0'
+            : 'fixed inset-y-0 left-0 w-64 transform translate-x-0'
           : sidebarOpen
           ? 'w-64'
           : 'w-20'}

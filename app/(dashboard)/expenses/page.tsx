@@ -5,6 +5,10 @@ import { Pencil, Save, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import ModernRangePicker from "@/components/ModernDatePicker";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Plus } from "lucide-react";
 
 export interface Expense {
   id?: string;
@@ -398,12 +402,12 @@ export default function ExpenseReport() {
         📊 Expense Report
       </h1>
       {/* ADD EXPENSE */}
-      <button
+      <Button
         onClick={() => setShowModal(true)}
-        className="bg-blue-600 hover:bg-blue-700 text-white px-4 sm:px-5 py-2 sm:py-3 rounded-xl font-medium text-sm sm:text-base w-full sm:w-auto"
+        className="bg-blue-600 hover:bg-blue-700 text-white px-4 sm:px-5 py-2 sm:py-3 rounded-xl font-medium text-sm sm:text-base w-full sm:w-auto cursor-pointer"
       >
-        + Add New Expense
-      </button>
+        <Plus className="w-4 h-4 mr-2" /> Add New Expense
+      </Button>
       </div>
 
       {/* FILTER BAR */}
@@ -423,8 +427,15 @@ export default function ExpenseReport() {
           label="Date Range"
           value={{ from: fromDate ? new Date(fromDate) : undefined, to: toDate ? new Date(toDate) : undefined }}
           onChange={(range) => {
-            setFromDate(range.from ? range.from.toISOString().split("T")[0] : "");
-            setToDate(range.to ? range.to.toISOString().split("T")[0] : "");
+            const toLocalYmd = (d: Date) => {
+              const yyyy = d.getFullYear();
+              const mm = String(d.getMonth() + 1).padStart(2, "0");
+              const dd = String(d.getDate()).padStart(2, "0");
+              return `${yyyy}-${mm}-${dd}`;
+            };
+
+            setFromDate(range?.from ? toLocalYmd(range.from) : "");
+            setToDate(range?.to ? toLocalYmd(range.to) : "");
           }}
         />
 
@@ -461,7 +472,7 @@ export default function ExpenseReport() {
           <Button
             size="sm"
             variant="outline"
-            className="bg-gray-200 hover:bg-gray-300 text-black text-xs sm:text-sm w-full sm:w-auto"
+            className="bg-gray-200 hover:bg-gray-300 text-black text-xs sm:text-sm w-full sm:w-auto cursor-pointer"
             onClick={clearFilters}
           >
             Clear Filters
@@ -565,13 +576,13 @@ export default function ExpenseReport() {
                       <td className="p-4 flex justify-end gap-3">
                         <button
                           onClick={() => saveRowUpdate(exp.id!)}
-                          className="p-2 rounded-lg text-green-600 hover:bg-green-100"
+                          className="p-2 rounded-lg text-green-600 hover:bg-green-100 cursor-pointer"
                         >
                           <Save size={18} />
                         </button>
                         <button
                           onClick={cancelRowEdit}
-                          className="p-2 rounded-lg text-red-600 hover:bg-red-100"
+                          className="p-2 rounded-lg text-red-600 hover:bg-red-100 cursor-pointer"
                         >
                           <X size={18} />
                         </button>
@@ -597,14 +608,14 @@ export default function ExpenseReport() {
                       <td className="p-4 flex justify-end gap-3">
                         <button
                           onClick={() => startEditRow(exp)}
-                          className="p-2 rounded-lg text-blue-600 hover:bg-blue-100"
+                          className="p-2 rounded-lg text-blue-600 hover:bg-blue-100 cursor-pointer"
                         >
                           <Pencil size={18} />
                         </button>
 
                         <button
                           onClick={() => deleteRow(exp.id)}
-                          className="p-2 rounded-lg text-red-600 hover:bg-red-100"
+                          className="p-2 rounded-lg text-red-600 hover:bg-red-100 cursor-pointer"
                         >
                           <Trash2 size={18} />
                         </button>
@@ -627,75 +638,68 @@ export default function ExpenseReport() {
       </div>
 
       {/* ADD EXPENSE MODAL */}
-      {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-xl p-4 sm:p-6 w-full max-w-lg animate-fade-in">
+      <Dialog open={showModal} onOpenChange={setShowModal}>
+        <DialogContent className="max-w-lg bg-white text-black">
+          <DialogHeader>
+            <DialogTitle>Add New Expense</DialogTitle>
+          </DialogHeader>
 
-            <h2 className="text-lg sm:text-xl font-semibold mb-4">Add New Expense</h2>
-
-            {/* Item */}
-            <div className="mb-3">
-              <label className="block text-sm mb-1">Item</label>
-              <input
-                type="text"
-                className="w-full border rounded-lg px-4 py-2"
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleSaveExpense();
+            }}
+            className="space-y-4 [&_input]:bg-white [&_input]:text-black"
+          >
+            <div>
+              <Label>Item</Label>
+              <Input
                 value={newExpense.item}
-                onChange={(e) =>
-                  setNewExpense({ ...newExpense, item: e.target.value })
-                }
+                onChange={(e) => setNewExpense({ ...newExpense, item: e.target.value })}
                 placeholder="Enter item name"
               />
             </div>
 
-            {/* Qty */}
-            <div className="mb-3">
-              <label className="block text-sm mb-1">Quantity</label>
-              <input
+            <div>
+              <Label>Quantity</Label>
+              <Input
                 type="number"
-                className="w-full border rounded-lg px-4 py-2"
                 value={newExpense.qty}
-                onChange={(e) =>
-                  setNewExpense({ ...newExpense, qty: e.target.value })
-                }
+                onChange={(e) => setNewExpense({ ...newExpense, qty: e.target.value })}
                 placeholder="0"
               />
             </div>
 
-            {/* Amount */}
-            <div className="mb-3">
-              <label className="block text-sm mb-1">Amount</label>
-              <input
+            <div>
+              <Label>Amount</Label>
+              <Input
                 type="number"
-                className="w-full border rounded-lg px-4 py-2"
                 value={newExpense.amount}
-                onChange={(e) =>
-                  setNewExpense({ ...newExpense, amount: e.target.value })
-                }
+                onChange={(e) => setNewExpense({ ...newExpense, amount: e.target.value })}
                 placeholder="0.00"
               />
             </div>
 
-            {/* Buttons */}
-            <div className="flex flex-col sm:flex-row justify-end gap-3 mt-5">
-
-              <button
+            <div className="flex flex-col sm:flex-row justify-end gap-3 pt-2">
+              <Button
+                type="button"
+                variant="outline"
+                className="bg-gray-200 hover:bg-gray-300 text-black w-full sm:w-auto cursor-pointer"
                 onClick={() => setShowModal(false)}
-                className="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 w-full sm:w-auto"
               >
                 Cancel
-              </button>
+              </Button>
 
-              <button
-                onClick={handleSaveExpense}
-                className="px-5 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 w-full sm:w-auto"
+              <Button
+                type="submit"
+                className="bg-green-600 text-white hover:bg-green-700 w-full sm:w-auto cursor-pointer"
               >
                 Save Expense
-              </button>
-
+              </Button>
             </div>
-          </div>
-        </div>
-      )}
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

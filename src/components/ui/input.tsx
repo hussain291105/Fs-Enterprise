@@ -4,6 +4,10 @@ import { cn } from "@/lib/utils";
 
 const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
   ({ className, type, ...props }, ref) => {
+    const normalizedProps = { ...props } as React.ComponentProps<"input">;
+    if (Object.prototype.hasOwnProperty.call(props, "value") && (props as any).value == null) {
+      (normalizedProps as any).value = "";
+    }
     return (
       <input
         type={type}
@@ -12,7 +16,7 @@ const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
           className,
         )}
         ref={ref}
-        {...props}
+        {...normalizedProps}
       />
     );
   },

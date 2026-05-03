@@ -133,6 +133,7 @@ export default function PartsTable({ parts, onUpdate }: PartsTableProps) {
                         variant="ghost"
                         size="icon"
                         onClick={() => setEditingPart(part)}
+                        className="cursor-pointer hover:bg-blue-100 hover:text-blue-600"
                       >
                         <Pencil className="h-4 w-4" />
                       </Button>
@@ -142,7 +143,7 @@ export default function PartsTable({ parts, onUpdate }: PartsTableProps) {
                         variant="ghost"
                         size="icon"
                         onClick={() => handleDelete(part.id)}
-                        className="hover:bg-destructive/10 hover:text-destructive"
+                        className="cursor-pointer hover:bg-red-100 hover:text-red-600"
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>

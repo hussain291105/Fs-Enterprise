@@ -233,7 +233,7 @@ const BillingEdit = () => {
     <div className="p-6 max-w-4xl mx-auto space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">Edit Bill</h1>
-        <Button variant="destructive" onClick={() => router.push("/billing")}>
+        <Button className="text-black hover:text-red-700 cursor-pointer" variant="destructive" onClick={() => router.push("/billing")}>
           <X className="w-4 h-4 mr-1" /> Cancel
         </Button>
       </div>
@@ -328,7 +328,7 @@ const BillingEdit = () => {
         >
           <option value="">Select Description</option>
           {availableDescriptions.map((d) => (
-            <option key={d.id} value={d.description}>
+            <option key={d.id ?? `${d.gsm_number}-${d.description}`} value={d.description}>
               {d.description}
             </option>
           ))}
@@ -375,7 +375,7 @@ const BillingEdit = () => {
             );
 
             return (
-              <tr key={item.id} className="border-b">
+              <tr key={item.id ?? `${item.gsm_number}-${item.description}-${index}`} className="border-b">
 
               {/* ✅ EDITABLE GSM */}
               <td>
@@ -402,7 +402,7 @@ const BillingEdit = () => {
                   }
                 >
                   {filteredDescriptions.map(desc => (
-                    <option key={desc.id} value={desc.description}>
+                    <option key={desc.id ?? `${desc.gsm_number}-${desc.description}`} value={desc.description}>
                       {desc.description}
                     </option>
                   ))}
@@ -448,19 +448,19 @@ const BillingEdit = () => {
       <div className="flex gap-3">
         <Button
           onClick={() => setShowGSTPopup(true)}
-          className="bg-blue-600"
+          className="bg-blue-600 text-white hover:bg-blue-700 cursor-pointer"
         >
           <PrinterIcon className="w-4 h-4 mr-1" /> Print Bill
         </Button>
 
-        <Button onClick={saveChanges} className="bg-green-600 text-white">
+        <Button onClick={saveChanges} className="bg-green-600 text-white hover:bg-green-700 cursor-pointer">
           <Save className="w-4 h-4 mr-1" /> Save Changes
         </Button>
       </div>
-
+      
       {/* GST Confirmation Popup */}
       <Dialog open={showGSTPopup} onOpenChange={setShowGSTPopup}>
-        <DialogContent className="max-w-md p-6 rounded-xl shadow-lg">
+        <DialogContent className="max-w-md p-6 rounded-xl shadow-lg bg-white text-black">
           <DialogHeader>
             <DialogTitle className="text-center text-xl font-semibold">
               Select GST Option
@@ -472,7 +472,7 @@ const BillingEdit = () => {
 
           <div className="flex justify-between gap-4 mt-4">
             <Button
-              className="bg-green-600 hover:bg-green-700 text-white w-full py-3 rounded-lg text-md font-semibold"
+              className="bg-green-600 hover:bg-green-700 text-white cursor-pointer w-full py-3 rounded-lg text-md font-semibold"
               onClick={() => {
                 setShowGSTPopup(false);
                 handlePrint(true); // WITH GST
@@ -482,7 +482,7 @@ const BillingEdit = () => {
             </Button>
 
             <Button
-              className="bg-red-600 hover:bg-red-700 text-white w-full py-3 rounded-lg text-md font-semibold"
+              className="bg-red-600 hover:bg-red-700 text-white cursor-pointer w-full py-3 rounded-lg text-md font-semibold"
               onClick={() => {
                 setShowGSTPopup(false);
                 handlePrint(false); // WITHOUT GST
@@ -495,7 +495,7 @@ const BillingEdit = () => {
           <div className="mt-4">
             <Button
               variant="outline"
-              className="w-full py-3 rounded-lg text-md font-semibold bg-white hover:bg-gray-400"
+              className="w-full py-3 rounded-lg text-md font-semibold bg-white hover:bg-gray-400 cursor-pointer"
               onClick={() => setShowGSTPopup(false)}
             >
               Cancel

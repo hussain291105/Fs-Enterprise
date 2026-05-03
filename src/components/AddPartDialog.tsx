@@ -98,12 +98,12 @@ const AddPartDialog = ({ onPartAdded }: AddPartDialogProps) => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="h-10 px-4 bg-blue-600 hover:bg-blue-700 text-white">
+        <Button className="h-10 px-4 bg-blue-600 hover:bg-blue-700 text-white cursor-pointer">
           <Plus className="mr-2 h-4 w-4" /> Add New Stock
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-w-2xl bg-white text-black">
         <DialogHeader>
           <DialogDescription>
             Fill in the details below to add a new stock item to inventory.
@@ -111,7 +111,10 @@ const AddPartDialog = ({ onPartAdded }: AddPartDialogProps) => {
           <DialogTitle>Add Stock Item</DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-4 [&_input]:bg-white [&_input]:text-black [&_select]:bg-white [&_select]:text-black"
+        >
           <div className="grid grid-cols-2 gap-4">
             <div>
               <Label>GSM Number *</Label>
@@ -256,7 +259,7 @@ const AddPartDialog = ({ onPartAdded }: AddPartDialogProps) => {
             </div>
           </div>
 
-          <Button className="bg-green-600 hover:bg-green-700" type="submit" disabled={loading}>
+          <Button className="bg-green-600 text-white hover:bg-green-700" type="submit" disabled={loading}>
             {loading ? "Adding..." : "Add Stock"}
           </Button>
         </form>

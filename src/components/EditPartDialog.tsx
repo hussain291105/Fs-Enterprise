@@ -137,7 +137,7 @@ export default function EditPartDialog({
             <div>
               <Label>Category</Label>
               <select
-                className="border rounded-md p-2 w-full"
+                className="border rounded-md p-2 w-full bg-background text-foreground"
                 value={formData.category}
                 onChange={(e) =>
                   setFormData({ ...formData, category: e.target.value })
@@ -155,7 +155,7 @@ export default function EditPartDialog({
           <div>
             <Label>Description</Label>
             <select
-              className="border rounded-md p-2 w-full"
+              className="border rounded-md p-2 w-full bg-background text-foreground"
               value={formData.description}
               onChange={(e) =>
                 setFormData({ ...formData, description: e.target.value })
